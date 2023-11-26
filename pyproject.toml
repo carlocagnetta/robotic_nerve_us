@@ -4,10 +4,10 @@ version = "0.1.0"
 description = ""
 authors = ["Carlo Cagnetta <cagnetta.carlo.98@gmail.com>"]
 readme = "README.md"
-repository = ""
+repository = "https://github.com/carlocagnetta/robotic_nerve_us.git"
 
 [tool.poetry.dependencies]
-python = "~3.9"
+python = "~3.8"
 gymnasium = {extras = ["classic-control", "mujoco"], version = "^0.27.1"}
 numpy = "^1.21"
 mujoco = "^2.3.2"
