@@ -1,0 +1,64 @@
+version: "3.7"
+
+services:
+  rob-us-intel:
+    image: rob-us-intel:0.1
+    network_mode: host
+    ipc: host
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      args:
+        - IMAGE=ros:noetic-ros-core-focal
+        - GPU=intel
+    shm_size: '32gb'
+    privileged: true
+    restart: always
+    environment:
+      - DISPLAY=$DISPLAY
+    volumes:
+      - $PWD/../:/home/dev_user/
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    devices:
+      - /dev/dri:/dev/dri
+    cap_add:
+      - SYS_NICE
+    ulimits:
+      rtprio: 99
+      rttime: -1 # corresponds to 'unlimited'
+      memlock: 8428281856
+
+  rob-us-nvidia:
+    image: rob-us-nvidia:0.1
+    network_mode: host
+    ipc: "host"
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      args:
+        - IMAGE=nvidia/cudagl:11.4.2-base-ubuntu20.04
+        - GPU=nvidia
+    shm_size: '32gb'
+    privileged: true
+    restart: always
+    environment:
+      - DISPLAY=$DISPLAY
+    volumes:
+      - $PWD/../:/home/dev_user/
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    devices:
+      - /dev/dri/:/dev/dri/
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+  jupyter:
+    image: jupyter/datascience-notebook
+    ports:
+      - "8888:8888"
+    volumes:
+      - $PWD:/home/dev_user/
+    restart: always
