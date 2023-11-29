@@ -1,3 +1,10 @@
 build/
 devel/
 src/franka_ros/
+.rosinstall*
+.catkin_tools/
+*moveit*/
+geometric_shapes/
+rviz_visual_tools/
+srdfdom/
+logs/

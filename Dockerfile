@@ -91,7 +91,12 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
   python3-wstool \
   python3-vcstools \
   && rm -rf /var/lib/apt/lists/* \
-  python-catkin-tools 
+  python-catkin-tools \
+  ccache
+
+## setup ccache
+RUN echo 'export PATH=/usr/lib/ccache:$PATH' >> $HOME/.bashrc
+RUN source $HOME/.bashrc
 
 ## bootstrap rosdep
 RUN rosdep init && \

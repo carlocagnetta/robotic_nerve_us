@@ -30,7 +30,7 @@ function debug() {
 
 function usage() {
     cat <<EOF
-Usage: $(basename "$0") [--coppelia] [--pyrep] [--rlbench] [--libfranka] [--frankx] [--franka-ros] [--all] [--help/-h]
+Usage: $(basename "$0") [--coppelia] [--pyrep] [--rlbench] [--libfranka] [--frankx] [--franka-ros] [--moveit] [--all] [--help/-h]
 Install required software packages for robot reinforcement learning.
 
 Options:
@@ -40,6 +40,7 @@ Options:
    --libfranka   Download and install libfranka. C++ interface for the Franka Emika research robot.
    --frankx      Download and install frankx. Python wrapper around libfranka.
    --franka-ros  Download and install franka ROS.
+   --moveit      Download and install MoveIt. Control libraries for Franka Robot on ROS.
    --all         Download and install all packages.
    --help/-h     Show this help message.
 EOF
@@ -233,8 +234,40 @@ function install_franka_ros() {
     
     info "Build franka_ros"
     rosdep install --from-paths src --ignore-src --rosdistro noetic -y --skip-keys libfranka
-    catkin_make -DCMAKE_BUILD_TYPE=Release -DFranka_DIR:PATH=/"${SCRIPT_PARENT}/libfranka/build/"
+    catkin build --cmake-args -DCMAKE_BUILD_TYPE=Release -DFranka_DIR:PATH=/"${SCRIPT_PARENT}/libfranka/build/"
     source devel/setup.sh
+}
+
+function install_moveit() {
+    local shell_init_file=
+        case $SHELL in
+            */bash) shell_init_file="${HOME}/.bashrc" ;;
+            */zsh) shell_init_file="${HOME}/.zshrc" ;;
+            *) shell_init_file="${HOME}/.profile" ;;
+        esac
+
+    local moveit_dir="${SCRIPT_PARENT}/robotic_nerve_us/catkin_ws/src/moveit"
+
+    info "source catkin_ws"
+    cd catkin_ws
+    source /opt/ros/noetic/setup.bash
+
+    if [ -d "${moveit_dir}" ] && [ -n "$(find "${moveit_dir}" -maxdepth 0 -type d -empty)" ]; then
+        warn "Deleting existing moveit directory: ${moveit_dir}"
+        rm -rf "${moveit_dir}"
+    elif [ ! -d "${moveit_dir}" ]; then
+        info "Downloading moveit to ${moveit_dir}"
+        wstool init src
+        wstool merge -t src https://raw.githubusercontent.com/ros-planning/moveit/master/moveit.rosinstall
+        wstool update -t src
+    else
+        info "moveit is already downloaded"
+    fi
+    
+    info "Build moveit"
+    rosdep install -y --from-paths src --ignore-src --rosdistro ${ROS_DISTRO}
+    catkin config --extend /opt/ros/${ROS_DISTRO} --cmake-args -DCMAKE_BUILD_TYPE=Release
+    catkin build
 }
 
 function install_catch2() {
@@ -328,6 +361,8 @@ function install_all() {
     install_libfranka
     echo "Installing franka_ros..."
     install_franka_ros
+    echo "Installing moveit..."
+    install_moveit
     echo "Installing CoppeliaSim..."
     install_coppelia
     echo "Installing PyRep..."
@@ -352,6 +387,7 @@ while [ $# -gt 0 ]; do
         --libfranka) install_libfranka ;;
         --frankx) install_frankx ;;
         --franka-ros) install_franka_ros ;;
+        --moveit) install_moveit ;;
         --all) install_all ;;
         -h|--help) usage; exit 0 ;;
         *) error "Invalid option: $1"; usage; exit 1 ;;
