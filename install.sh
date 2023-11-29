@@ -30,7 +30,7 @@ function debug() {
 
 function usage() {
     cat <<EOF
-Usage: $(basename "$0") [--coppelia] [--pyrep] [--rlbench] [--libfranka] [--all] [--help/-h]
+Usage: $(basename "$0") [--coppelia] [--pyrep] [--rlbench] [--libfranka] [--frankx] [--franka-ros] [--all] [--help/-h]
 Install required software packages for robot reinforcement learning.
 
 Options:
@@ -39,6 +39,7 @@ Options:
    --rlbench     Download and install RLBench. Benchmark suite for robot learning.
    --libfranka   Download and install libfranka. C++ interface for the Franka Emika research robot.
    --frankx      Download and install frankx. Python wrapper around libfranka.
+   --franka-ros  Download and install franka ROS.
    --all         Download and install all packages.
    --help/-h     Show this help message.
 EOF
@@ -180,6 +181,8 @@ function install_libfranka() {
     fi
 
     info "Building libfranka from source in ${libfranka_dir}"
+    git config --global --add safe.directory /home/dev_user/libfranka
+    git config --global --add safe.directory /home/dev_user/libfranka/common
     sudo apt update
     sudo apt install -y ${LIBRARY_DEPENDENCIES}
 
@@ -199,8 +202,39 @@ function install_libfranka() {
     mkdir -p build
     cd build
     cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF ..
-    make -j$(nproc)
+    cmake --build .
     info "libfranka installed successfully"
+}
+
+
+function install_franka_ros() {
+    local shell_init_file=
+        case $SHELL in
+            */bash) shell_init_file="${HOME}/.bashrc" ;;
+            */zsh) shell_init_file="${HOME}/.zshrc" ;;
+            *) shell_init_file="${HOME}/.profile" ;;
+        esac
+
+    local franka_ros_dir="${SCRIPT_PARENT}/robotic_nerve_us/catkin_ws/src/franka_ros"
+
+    info "source catkin_ws"
+    cd catkin_ws
+    source /opt/ros/noetic/setup.bash
+
+    if [ -d "${franka_ros_dir}" ] && [ -n "$(find "${franka_ros_dir}" -maxdepth 0 -type d -empty)" ]; then
+        warn "Deleting existing franka_ros directory: ${franka_ros_dir}"
+        rm -rf "${franka_ros_dir}"
+    elif [ ! -d "${franka_ros_dir}" ]; then
+        info "Downloading franka_ros to ${franka_ros_dir}"
+        git clone --recursive https://github.com/frankaemika/franka_ros "${franka_ros_dir}"
+    else
+        info "franka_ros is already downloaded"
+    fi
+    
+    info "Build franka_ros"
+    rosdep install --from-paths src --ignore-src --rosdistro noetic -y --skip-keys libfranka
+    catkin_make -DCMAKE_BUILD_TYPE=Release -DFranka_DIR:PATH=/"${SCRIPT_PARENT}/libfranka/build/"
+    source devel/setup.sh
 }
 
 function install_catch2() {
@@ -290,15 +324,17 @@ function install_frankx() {
 }
 
 function install_all() {
-    echo "\n Installing libfranka..."
+    echo "Installing libfranka..."
     install_libfranka
-    echo "\n Installing CoppeliaSim..."
+    echo "Installing franka_ros..."
+    install_franka_ros
+    echo "Installing CoppeliaSim..."
     install_coppelia
-    echo "\n Installing PyRep..."
+    echo "Installing PyRep..."
     install_pyrep
-    echo "\n Installing RLbench..."
+    echo "Installing RLbench..."
     install_rlbench
-    echo "\n Installing Frankx..."
+    echo "Installing Frankx..."
     install_frankx
 }
 
@@ -315,6 +351,7 @@ while [ $# -gt 0 ]; do
         --rlbench) install_rlbench ;;
         --libfranka) install_libfranka ;;
         --frankx) install_frankx ;;
+        --franka-ros) install_franka_ros ;;
         --all) install_all ;;
         -h|--help) usage; exit 0 ;;
         *) error "Invalid option: $1"; usage; exit 1 ;;

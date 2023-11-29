@@ -30,7 +30,9 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
   tmux \
   mesa-utils \
   glmark2 \
-  iputils-ping
+  iputils-ping \
+  gdebi-core\
+  wget
 
 # Install Intel graphics drivers
 RUN if [ "$GPU" = "intel" ] ; then curl fsSL https://repositories.intel.com/graphics/intel-graphics.key | apt-key add - ; fi
@@ -48,7 +50,7 @@ RUN if [ "$GPU" = "nvidia" ] ; then apt-get update && apt-get install -y nvidia-
 RUN apt update && apt install -y zsh \
   && chsh -s $(which zsh) \
   && sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" \
-  && git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+  && git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 
 # modify .zshrc to allow nice plugins
 RUN sed -i '11s/ZSH_THEME="robbyrussell"/ZSH_THEME="agnoster"/' ~/.zshrc
@@ -88,7 +90,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
   python3-rosinstall-generator \
   python3-wstool \
   python3-vcstools \
-  && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/* \
+  python-catkin-tools 
 
 ## bootstrap rosdep
 RUN rosdep init && \
