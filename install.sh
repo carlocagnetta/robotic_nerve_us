@@ -220,7 +220,17 @@ function install_franka_ros() {
 
     info "source catkin_ws"
     cd catkin_ws
-    source /opt/ros/noetic/setup.bash
+    # Check if the current shell is Bash
+    if [ -n "$BASH_VERSION" ]; then
+        echo "Running in Bash"
+        source /opt/ros/noetic/setup.bash
+    elif [ -n "$ZSH_VERSION" ]; then
+        echo "Running in Zsh"
+        source /opt/ros/noetic/setup.zsh
+    else
+        echo "Unsupported shell"
+        exit 1
+    fi
 
     if [ -d "${franka_ros_dir}" ] && [ -n "$(find "${franka_ros_dir}" -maxdepth 0 -type d -empty)" ]; then
         warn "Deleting existing franka_ros directory: ${franka_ros_dir}"
@@ -234,9 +244,20 @@ function install_franka_ros() {
     
     info "Build franka_ros"
     rosdep install --from-paths src --ignore-src --rosdistro noetic -y --skip-keys libfranka
+    info "#All required rosdeps installed successfully"
     catkin build --cmake-args -DCMAKE_BUILD_TYPE=Release -DFranka_DIR:PATH=/"${SCRIPT_PARENT}/libfranka/build/"
-    source devel/setup.sh
-}
+    # Check if the current shell is Bash
+    if [ -n "$BASH_VERSION" ]; then
+        echo "Running in Bash"
+        source devel/setup.sh
+    elif [ -n "$ZSH_VERSION" ]; then
+        echo "Running in Zsh"
+        source devel/setup.sh
+    else
+        echo "Unsupported shell"
+        exit 1
+    fi
+    }
 
 function install_moveit() {
     local shell_init_file=
@@ -250,7 +271,17 @@ function install_moveit() {
 
     info "source catkin_ws"
     cd catkin_ws
-    source /opt/ros/noetic/setup.bash
+    # Check if the current shell is Bash
+    if [ -n "$BASH_VERSION" ]; then
+        echo "Running in Bash"
+        source /opt/ros/noetic/setup.bash
+    elif [ -n "$ZSH_VERSION" ]; then
+        echo "Running in Zsh"
+        source /opt/ros/noetic/setup.zsh
+    else
+        echo "Unsupported shell"
+        exit 1
+    fi
 
     if [ -d "${moveit_dir}" ] && [ -n "$(find "${moveit_dir}" -maxdepth 0 -type d -empty)" ]; then
         warn "Deleting existing moveit directory: ${moveit_dir}"
@@ -267,7 +298,18 @@ function install_moveit() {
     info "Build moveit"
     rosdep install -y --from-paths src --ignore-src --rosdistro ${ROS_DISTRO}
     catkin config --extend /opt/ros/${ROS_DISTRO} --cmake-args -DCMAKE_BUILD_TYPE=Release
-    catkin build
+    catkin build --cmake-args -DCMAKE_BUILD_TYPE=Release -DFranka_DIR:PATH=/"${SCRIPT_PARENT}/libfranka/build/"
+    # Check if the current shell is Bash
+    if [ -n "$BASH_VERSION" ]; then
+        echo "Running in Bash"
+        source devel/setup.sh
+    elif [ -n "$ZSH_VERSION" ]; then
+        echo "Running in Zsh"
+        source devel/setup.sh
+    else
+        echo "Unsupported shell"
+        exit 1
+    fi
 }
 
 function install_catch2() {

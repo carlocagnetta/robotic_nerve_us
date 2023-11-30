@@ -62,3 +62,8 @@ This includes:
 In order to develop the control of the Franka Emika Robot, FCI has been used. Proper documentation can be found [here](https://frankaemika.github.io/docs/index.html). \
 The installation of `libfranka` and `franka-ros` is taken care of form the `./install.sh` file. This installs the two libraries from source. \
 These and further installation instrcution to set up the real-time kernel, which is necessary for robot control, can be found in the [FCI documentation](https://frankaemika.github.io/docs/installation_linux.html)
+
+Make sure to allow the X11 forwarding on the host machine running the following command:
+```
+xhost +si:localuser:root
+```
