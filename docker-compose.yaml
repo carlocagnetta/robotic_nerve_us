@@ -19,6 +19,7 @@ services:
     volumes:
       - $PWD/../:/home/dev_user/
       - /tmp/.X11-unix:/tmp/.X11-unix
+      - $XAUTHORITY:/root/.Xauthority \
     devices:
       - /dev/dri:/dev/dri
     cap_add:
@@ -46,6 +47,7 @@ services:
     volumes:
       - $PWD/../:/home/dev_user/
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - $XAUTHORITY:/root/.Xauthority \
     devices:
       - /dev/dri/:/dev/dri/
     deploy:

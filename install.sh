@@ -5,6 +5,7 @@ set -euo pipefail
 SCRIPT_PARENT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." &>/dev/null && pwd)"
 LIBRARY_DEPENDENCIES="build-essential cmake git libpoco-dev libeigen3-dev"
 COPPELIASIM_ROOT="${COPPELIASIM_ROOT:-}"
+LD_LIBRARY_PATH="${SCRIPT_PARENT}"
 
 function log() {
     local level=$1
@@ -191,7 +192,7 @@ function install_libfranka() {
     git checkout 0.9.0
     git submodule update
 
-    if [[ ! "$LD_LIBRARY_PATH" =~ "${libfranka_dir}/build" ]]; then
+    if [[ ! "${LD_LIBRARY_PATH}" =~ "${libfranka_dir}/build" ]]; then
         info "Adding libfranka to LD_LIBRARY_PATH in $shell_init_file"
         sed -i '/^export '"LD_LIBRARY_PATH"'/d' "$shell_init_file"
         echo "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${libfranka_dir}/build" >> "$shell_init_file"
@@ -219,7 +220,7 @@ function install_franka_ros() {
     local franka_ros_dir="${SCRIPT_PARENT}/robotic_nerve_us/catkin_ws/src/franka_ros"
 
     info "source catkin_ws"
-    cd catkin_ws
+    cd ${SCRIPT_PARENT}/robotic_nerve_us/catkin_ws
     # Check if the current shell is Bash
     if [ -n "$BASH_VERSION" ]; then
         echo "Running in Bash"
@@ -245,7 +246,7 @@ function install_franka_ros() {
     info "Build franka_ros"
     rosdep install --from-paths src --ignore-src --rosdistro noetic -y --skip-keys libfranka
     info "#All required rosdeps installed successfully"
-    catkin build --cmake-args -DCMAKE_BUILD_TYPE=Release -DFranka_DIR:PATH=/"${SCRIPT_PARENT}/libfranka/build/"
+    catk<in build --cmake-args -DCMAKE_BUILD_TYPE=Release -DFranka_DIR:PATH=/"${SCRIPT_PARENT}/libfranka/build/"
     # Check if the current shell is Bash
     if [ -n "$BASH_VERSION" ]; then
         echo "Running in Bash"
@@ -270,7 +271,7 @@ function install_moveit() {
     local moveit_dir="${SCRIPT_PARENT}/robotic_nerve_us/catkin_ws/src/moveit"
 
     info "source catkin_ws"
-    cd catkin_ws
+    cd ${SCRIPT_PARENT}/robotic_nerve_us/catkin_ws
     # Check if the current shell is Bash
     if [ -n "$BASH_VERSION" ]; then
         echo "Running in Bash"

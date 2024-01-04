@@ -32,7 +32,10 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
   glmark2 \
   iputils-ping \
   gdebi-core\
-  wget
+  wget\
+  x11-xserver-utils\
+  x11-apps \
+  xserver-xorg-video-dummy
 
 # Install Intel graphics drivers
 RUN if [ "$GPU" = "intel" ] ; then curl fsSL https://repositories.intel.com/graphics/intel-graphics.key | apt-key add - ; fi
@@ -91,12 +94,12 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
   python3-wstool \
   python3-vcstools \
   && rm -rf /var/lib/apt/lists/* \
-  python-catkin-tools \
+  python3-catkin-tools \
   ccache
 
 ## setup ccache
 RUN echo 'export PATH=/usr/lib/ccache:$PATH' >> $HOME/.bashrc
-RUN source $HOME/.bashrc
+RUN . $HOME/.bashrc
 
 ## bootstrap rosdep
 RUN rosdep init && \
