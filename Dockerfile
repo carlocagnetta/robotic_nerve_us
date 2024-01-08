@@ -93,9 +93,9 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
   python3-rosinstall-generator \
   python3-wstool \
   python3-vcstools \
-  && rm -rf /var/lib/apt/lists/* \
   python3-catkin-tools \
-  ccache
+  ccache \
+  && rm -rf /var/lib/apt/lists/* 
 
 ## setup ccache
 RUN echo 'export PATH=/usr/lib/ccache:$PATH' >> $HOME/.bashrc

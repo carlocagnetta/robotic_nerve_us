@@ -246,7 +246,7 @@ function install_franka_ros() {
     info "Build franka_ros"
     rosdep install --from-paths src --ignore-src --rosdistro noetic -y --skip-keys libfranka
     info "#All required rosdeps installed successfully"
-    catk<in build --cmake-args -DCMAKE_BUILD_TYPE=Release -DFranka_DIR:PATH=/"${SCRIPT_PARENT}/libfranka/build/"
+    catkin build --cmake-args -DCMAKE_BUILD_TYPE=Release -DFranka_DIR:PATH=/"${SCRIPT_PARENT}/libfranka/build/"
     # Check if the current shell is Bash
     if [ -n "$BASH_VERSION" ]; then
         echo "Running in Bash"
