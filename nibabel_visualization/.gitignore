@@ -1,2 +1,3 @@
 *.nii
 /.ipynb_checkpoints
+*.txt
