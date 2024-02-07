@@ -3,7 +3,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 
-def show(slices, start, lap, col=5, cmap=None, aspect=6):
+def _show(slices, start, lap, col=5, cmap=None, aspect=6):
     """ Function to display row of image slices
      :param slices: list of image slices
      :param start: starting slice number
@@ -41,7 +41,7 @@ def show_slices(data, start, end, lap, col=5, cmap=None, aspect=6):
         it += 1
         slices.append(data[:, slice, :])
         if it==end: break
-    show(slices, start, lap, col, cmap, aspect)
+    _show(slices, start, lap, col, cmap, aspect)
 
 
 def show_cluster_centers(tissue_clusters: dict, slice: np.ndarray) -> None:
