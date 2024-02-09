@@ -1,4 +1,5 @@
 import numpy as np
+import SimpleITK as sitk
 
 def padding(original_array: np.ndarray) -> np.ndarray:
     """ Pad an array to make it square
@@ -31,7 +32,7 @@ def padding(original_array: np.ndarray) -> np.ndarray:
 
     return padded_array
 
-def slice_volume(z_rotation: float, x_rotation: float, translation: np.ndarray[4,4], volume: sitk.Image) -> (np.ndarray[4,4], sitk.Image):
+def slice_volume(z_rotation: float, x_rotation: float, translation: np.ndarray[4,4], volume: sitk.Image):
     """
     Slice a 3D volume with arbitrary rotation and translation
     :param z_rotation: rotation around z-axis in degrees
