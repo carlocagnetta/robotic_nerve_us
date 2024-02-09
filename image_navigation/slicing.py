@@ -30,3 +30,56 @@ def padding(original_array: np.ndarray) -> np.ndarray:
     print("Padded Array Shape:", padded_array.shape)
 
     return padded_array
+
+def slice_volume(z_rotation: float, x_rotation: float, translation: np.ndarray[4,4], volume: sitk.Image) -> (np.ndarray[4,4], sitk.Image):
+    """
+    Slice a 3D volume with arbitrary rotation and translation
+    :param z_rotation: rotation around z-axis in degrees
+    :param x_rotation: rotation around x-axis in degrees
+    :param translation: translation vector
+    :param volume: 3D volume to be sliced
+    :return: Euler transformation matrix and the sliced volume
+    """
+
+    # Euler transformation
+    # Rotation is defined by three rotations around z1, x2, z2 axis
+    th_z1 = np.deg2rad(z_rotation)
+    th_x2 = np.deg2rad(x_rotation)
+
+    o = np.array(volume.GetOrigin())
+    t = translation
+
+    # transformation simplified at z2=0 since this rotation is never performed
+    eul_tr = np.array([ [np.cos(th_z1), -np.sin(th_z1)*np.cos(th_x2),  np.sin(th_z1)*np.sin(th_x2), o[0]+t[0]],
+                        [np.sin(th_z1),  np.cos(th_z1)*np.cos(th_x2), -np.cos(th_z1)*np.sin(th_x2), o[1]+t[1]],
+                        [0,              np.sin(th_x2),                np.cos(th_x2),               o[2]+t[2]],
+                        [0,              0,                            0,                           1]])
+
+    # Define plane's coordinate system
+    e1 = eul_tr[0][:3]
+    e2 = eul_tr[1][:3]
+    e3 = eul_tr[2][:3]
+    img_o = eul_tr[:, -1:].flatten()[:3] # origin of the image plane
+
+    direction = np.stack([e1, e2, e3], axis=0).flatten()
+
+    resampler = sitk.ResampleImageFilter()
+    spacing = volume.GetSpacing()
+    volume_size = volume.GetSize()
+
+    # Define the size of the output image
+    # height of the image plane: original z size divided by cosine of x-rotation
+    h = int(abs(volume_size[2]//e3[2]))
+    # width of the image plane: original x size divided by cosine of z-rotation
+    w = int(abs(volume_size[0]//e1[0]))
+
+    resampler.SetOutputDirection(direction.tolist())
+    resampler.SetOutputOrigin(img_o.tolist())
+    resampler.SetOutputSpacing(spacing)
+    resampler.SetSize((w, 3, h))
+    resampler.SetInterpolator(sitk.sitkNearestNeighbor)
+
+    # Resample the volume on the arbitrary plane
+    sliced_volume = resampler.Execute(volume)
+
+    return eul_tr, sliced_volume
