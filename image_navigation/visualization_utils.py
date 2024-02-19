@@ -18,7 +18,7 @@ def _show(slices, start, lap, col=5, cmap=None, aspect=6):
     # Flatten the axes array to simplify indexing
     axes = axes.flatten()
     for i, slice in enumerate(slices):
-        axes[i].imshow(slice.T, cmap=cmap, origin="lower", aspect=aspect)
+        axes[i].imshow(slice, cmap=cmap, origin="lower", aspect=aspect)
         axes[i].set_title(f'Slice {start - i*lap}')  # Set titles if desired
     # Adjust layout to prevent overlap of titles
     plt.tight_layout()
@@ -53,9 +53,9 @@ def show_cluster_centers(tissue_clusters: dict, slice: np.ndarray) -> None:
     for tissue in tissue_clusters:
         for label, data in enumerate(tissue_clusters[tissue]):
             # plot clusters with different colors
-            plt.scatter(*data['center'], color='red', marker='*', s=20) # plot centers
+            plt.scatter(data['center'][1],data['center'][0], color='red', marker='*', s=20) # plot centers
 
-    plt.imshow(slice.T, aspect=6, origin='lower')
+    plt.imshow(slice, aspect=6, origin='lower')
 
 
 def show_clusters(tissue_clusters: dict, slice: np.ndarray) -> None:
@@ -71,8 +71,9 @@ def show_clusters(tissue_clusters: dict, slice: np.ndarray) -> None:
         for label, data in enumerate(tissue_clusters[tissue]):
             # plot clusters with different colors
             cluster_labels[tuple(data['cluster'].T)] = (label + 1)*10
-            plt.scatter(*data['center'], color='red', marker='*', s=20) # plot centers
-    plt.imshow(cluster_labels.T, aspect=6, origin='lower')
+            plt.scatter(data['center'][1],data['center'][0], color='red', marker='*', s=20)
+
+    plt.imshow(cluster_labels, aspect=6, origin='lower')
 
 
 def show_only_clusters(tissue_clusters: dict, slice: np.ndarray) -> None:
@@ -88,6 +89,6 @@ def show_only_clusters(tissue_clusters: dict, slice: np.ndarray) -> None:
         for label, data in enumerate(tissue_clusters[tissue]):
             # plot clusters with different colors
             cluster_labels[tuple(data['cluster'].T)] = (label + 1)*10
-            plt.scatter(*data['center'], color='red', marker='*', s=20) # plot centers
+            plt.scatter(data['center'][1],data['center'][0], color='red', marker='*', s=20) # plot centers
 
-    plt.imshow(cluster_labels.T, aspect=6, origin='lower')
+    plt.imshow(cluster_labels, aspect=6, origin='lower')
