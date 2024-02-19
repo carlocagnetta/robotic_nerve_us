@@ -16,6 +16,7 @@ This repo contains the work of the Master Thesis of the author at the CAMPAR cha
 
 ## Setup
 To quickly set up the environment we advice using a conda env.
+The file ´´´requirements.txt´´´ contains a pip freeze of the current environment used for development.
 
 ## Structure
 
