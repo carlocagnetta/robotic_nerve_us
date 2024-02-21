@@ -32,14 +32,14 @@ def padding(original_array: np.ndarray) -> np.ndarray:
 
     return padded_array
 
-def slice_volume(z_rotation: float, x_rotation: float, translation: np.ndarray[3], volume: sitk.Image) -> sitk.Image:
+def slice_volume(z_rotation: float, x_rotation: float, translation: np.ndarray, volume: sitk.Image) -> sitk.Image:
     """
     Slice a 3D volume with arbitrary rotation and translation
     :param z_rotation: rotation around z-axis in degrees
     :param x_rotation: rotation around x-axis in degrees
     :param translation: translation vector
     :param volume: 3D volume to be sliced
-    :return: Euler transformation matrix and the sliced volume
+    :return: the sliced volume
     """
 
     # Euler transformation
