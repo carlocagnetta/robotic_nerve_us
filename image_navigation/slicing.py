@@ -37,7 +37,7 @@ def slice_volume(z_rotation: float, x_rotation: float, translation: np.ndarray, 
     Slice a 3D volume with arbitrary rotation and translation
     :param z_rotation: rotation around z-axis in degrees
     :param x_rotation: rotation around x-axis in degrees
-    :param translation: translation vector
+    :param translation: translation vector in 3D space
     :param volume: 3D volume to be sliced
     :return: the sliced volume
     """
