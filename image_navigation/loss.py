@@ -9,7 +9,7 @@ def loss_fct(tissue_clusters) -> float:
 
     # Presence of landmark tissues:
 
-    # Standard plane has 7 bones, 2 tendins and 1 ulnar cluster
+    # Standard plane has 7 bones, 2 tendons and 1 ulnar cluster
     bones_loss = abs(len(tissue_clusters['bones']) - 7)
     ligament_loss = abs(len(tissue_clusters['tendins']) - 2)
     ulnar_loss = abs(len(tissue_clusters['ulnar']) - 1)
